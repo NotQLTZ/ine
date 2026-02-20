@@ -10,13 +10,15 @@
         .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; }
         h1 { margin: 0; font-size: 28px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 10px; }
         
-        .id-display { background: #000; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace; color: #00ff96; font-size: 12px; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; }
+        .id-display { background: #000; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace; color: #00ff96; font-size: 13px; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; }
         
         .discord-link { display: block; margin-bottom: 15px; color: #5865f2; text-decoration: none; font-weight: 800; font-size: 14px; border: 1px solid #5865f2; padding: 8px; border-radius: 5px; transition: 0.3s; }
         .discord-link:hover { background: #5865f2; color: white; }
         
         .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; margin-top: 10px; box-shadow: 0 0 20px rgba(35, 134, 54, 0.4); }
-        .copy-btn { background: #30363d; font-size: 14px; padding: 10px; margin-top: 10px; color: #c9d1d9; border: 1px solid #8b949e; }
+        .btn:disabled { background: #3c444d; cursor: not-allowed; box-shadow: none; }
+        
+        .copy-btn { background: #30363d; font-size: 14px; padding: 10px; margin-top: 10px; color: #c9d1d9; border: 1px solid #8b949e; height: auto; }
         
         @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
@@ -26,43 +28,45 @@
         <div class="content">
             <h1>QLTZ Notifier</h1>
             
-            <div class="id-display" id="jobDisplay">Loading JobID...</div>
+            <div class="id-display" id="jobDisplay">WAITING FOR ID...</div>
             
             <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN QLTZ DISCORD</a>
             
-            <button id="joinBtn" class="btn">🚀 JOIN SERVER</button>
-            <button id="copyBtn" class="copy-btn btn">📋 COPY JOBID</button>
+            <button id="joinBtn" class="btn" disabled>JOIN SERVER</button>
+            <button id="copyBtn" class="copy-btn btn">📋 COPY ID</button>
         </div>
     </div>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const jobId = params.get('jobid');
-        const placeId = "13511855214";
-        
-        if (jobId) {
-            document.getElementById('jobDisplay').innerText = "SERVER ID: " + jobId;
+        // Use URLSearchParams to grab the ?jobid= from the link
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = urlParams.get('jobid');
+        const placeId = "13511855214"; // Steal a Brainrot Place ID
+
+        const display = document.getElementById('jobDisplay');
+        const joinBtn = document.getElementById('joinBtn');
+
+        if (jobId && jobId.length > 5) {
+            display.innerText = "SERVER ID: " + jobId;
+            display.style.color = "#00ff96";
+            joinBtn.disabled = false;
+            
+            // Set the Roblox launch link
+            joinBtn.onclick = function() {
+                window.location.href = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${jobId}`;
+            };
         } else {
-            document.getElementById('jobDisplay').innerText = "NO JOB ID FOUND";
-            document.getElementById('jobDisplay').style.color = "#ff7b72";
+            display.innerText = "ERROR: NO JOBID DETECTED";
+            display.style.color = "#ff7b72";
         }
-
-        const deepLink = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${jobId}`;
-
-        document.getElementById('joinBtn').onclick = function() {
-            if (jobId) {
-                window.location.href = deepLink;
-            } else {
-                alert("No Server ID provided in the link.");
-            }
-        };
 
         document.getElementById('copyBtn').onclick = function() {
             if (jobId) {
                 navigator.clipboard.writeText(jobId);
-                const originalText = this.innerText;
                 this.innerText = "✅ COPIED!";
-                setTimeout(() => { this.innerText = originalText; }, 2000);
+                setTimeout(() => { this.innerText = "📋 COPY ID"; }, 2000);
+            } else {
+                alert("Nothing to copy!");
             }
         };
     </script>
