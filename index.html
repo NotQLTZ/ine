@@ -6,12 +6,14 @@
     <title>QLTZ Notifier</title>
     <style>
         body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
-        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; }
-        h1 { margin: 0; font-size: 28px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 10px; }
-        .id-display { background: #000; padding: 10px; border-radius: 5px; font-family: monospace; color: #00ff96; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; }
-        .discord-link { display: block; margin-bottom: 15px; color: #5865f2; text-decoration: none; font-weight: bold; border: 1px solid #5865f2; padding: 8px; border-radius: 5px; }
-        .btn { display: block; background: #238636; color: white; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; }
+        .rainbow-box { padding: 6px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
+        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; border: 1px solid rgba(255,255,255,0.1); }
+        h1 { margin: 0; font-size: 32px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 15px; font-weight: 900; }
+        .id-display { background: #000; padding: 12px; border-radius: 5px; font-family: monospace; color: #00ff96; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; font-size: 12px; }
+        .discord-link { display: block; margin-bottom: 20px; color: #5865f2; text-decoration: none; font-weight: bold; border: 2px solid #5865f2; padding: 10px; border-radius: 8px; transition: 0.3s; }
+        .discord-link:hover { background: #5865f2; color: white; }
+        .btn { display: block; background: #238636; color: white; padding: 22px; border-radius: 8px; font-weight: 900; font-size: 26px; cursor: pointer; border: none; width: 100%; transition: 0.2s; box-shadow: 0 0 20px rgba(35, 134, 54, 0.5); }
+        .btn:active { transform: scale(0.95); }
         @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
@@ -19,7 +21,7 @@
     <div class="rainbow-box">
         <div class="content">
             <h1>QLTZ Notifier</h1>
-            <div class="id-display" id="jobDisplay">VALIDATING PUBLIC SERVER...</div>
+            <div class="id-display" id="jobDisplay">CLEANING ID...</div>
             <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN QLTZ DISCORD</a>
             <button id="joinBtn" class="btn">JOIN PUBLIC</button>
         </div>
@@ -31,16 +33,28 @@
         const placeId = "13511855214"; 
 
         if (id) {
-            id = id.replace(/['"]+/g, '').trim();
-            document.getElementById('jobDisplay').innerText = "PUBLIC ID: " + id;
+            // STRIP EVERYTHING: Ensure only the raw alphanumeric JobID remains
+            id = id.replace(/[^a-zA-Z0-0-]/g, ""); 
+            document.getElementById('jobDisplay').innerText = "ID: " + id;
 
             const launch = () => {
-                // Using the Absolute Public Path
-                window.location.href = "roblox://placeId=" + placeId + "&gameInstanceId=" + id;
+                // This specific URI format is the most aggressive for Public Servers
+                const robloxLink = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
+                
+                // Try multiple ways to trigger the app protocol
+                window.location.assign(robloxLink);
+                
+                // Fallback for strict browsers
+                setTimeout(() => {
+                    window.location.href = robloxLink;
+                }, 250);
             };
 
-            setTimeout(launch, 800);
+            // Auto-launch
+            setTimeout(launch, 1000);
             document.getElementById('joinBtn').onclick = launch;
+        } else {
+            document.getElementById('jobDisplay').innerText = "NO ID DETECTED";
         }
     </script>
 </body>
