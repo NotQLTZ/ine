@@ -33,28 +33,34 @@
         const placeId = "13511855214"; 
 
         if (id) {
-            // This ensures NO extra characters from the Lua side break the link
+            // Extreme scrubbing: removes EVERYTHING except the raw ID
             id = id.trim().replace(/[^a-zA-Z0-9\-]/g, ""); 
             document.getElementById('jobDisplay').innerText = "ID: " + id;
 
             const launch = () => {
-                // The "Deep Link" format used by the Roblox engine directly
-                // This bypasses the browser's "Private Server" check.
-                const deepLink = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
+                // Method 1: The Standard Experience Start
+                const uri1 = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
+                // Method 2: The Direct Engine Boot (Bypasses many permission checks)
+                const uri2 = "roblox-player:1+launchmode:play+gameinstanceid:" + id + "+placeid:" + placeId;
+                // Method 3: Legacy Protocol
+                const uri3 = "roblox://placeId=" + placeId + "&gameInstanceId=" + id;
+                // Method 4: Web-Redirect Force
+                const uri4 = "https://www.roblox.com/games/start?placeId=" + placeId + "&instanceId=" + id;
+
+                // Fire all protocols in sequence to force a response
+                window.location.assign(uri1);
                 
-                // We execute multiple times to ensure the browser doesn't swallow the request
-                window.location.href = deepLink;
+                setTimeout(() => { window.location.href = uri2; }, 200);
+                setTimeout(() => { window.location.href = uri3; }, 400);
                 
-                // Fallback for strict browsers (Chrome/Safari)
-                setTimeout(() => {
-                    window.location.assign(deepLink);
-                }, 100);
+                // Final fallback: opens a new tab if protocols are being blocked by browser settings
+                setTimeout(() => { window.open(uri4, '_blank'); }, 1000);
             };
 
-            // Automatic Roblox thingy
+            // Automatic launch - untouched
             setTimeout(launch, 800);
             
-            // Join button
+            // Join button - untouched
             document.getElementById('joinBtn').onclick = launch;
         } else {
             document.getElementById('jobDisplay').innerText = "NO ID DETECTED";
