@@ -8,16 +8,17 @@
         body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
         .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
         .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 300px; color: white; }
-        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 18px; cursor: pointer; border: none; width: 100%; margin-top: 20px; }
+        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 22px; cursor: pointer; border: none; width: 100%; margin-top: 20px; transition: 0.2s; }
+        .btn:hover { background: #2ea043; transform: scale(1.05); }
         @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
 <body>
     <div class="rainbow-box">
         <div class="content">
-            <h1 style="margin:0">QLTZ</h1>
-            <p style="color:#8b949e">Server Redirect</p>
-            <button id="launch" class="btn">FORCE JOIN</button>
+            <h1 style="margin:0; letter-spacing: 2px;">QLTZ</h1>
+            <p style="color:#8b949e; margin-top: 5px;">DIRECT SERVER JOIN</p>
+            <a id="joinLink" href="#" class="btn">JOIN SERVER</a>
         </div>
     </div>
 
@@ -26,14 +27,15 @@
         const serverId = urlParams.get('server');
         const placeId = "13511855214";
 
-        document.getElementById('launch').onclick = function() {
-            if (serverId) {
-                // This is the most aggressive "Deep Link" format
-                window.location.href = "roblox://placeId=" + placeId + "&gameInstanceId=" + serverId;
-            } else {
-                alert("No Server ID found in link!");
-            }
-        };
+        if (serverId) {
+            // Using the official Roblox Game Launch Protocol
+            // This forces the app to look for the EXACT JobID
+            const launchUrl = `https://www.roblox.com/games/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+            document.getElementById('joinLink').href = launchUrl;
+        } else {
+            document.getElementById('joinLink').innerText = "ERROR: NO ID";
+            document.getElementById('joinLink').style.backgroundColor = "#da3633";
+        }
     </script>
 </body>
 </html>
