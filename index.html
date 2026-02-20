@@ -8,9 +8,11 @@
         body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, system-ui, sans-serif; }
         .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
         .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 320px; color: white; }
-        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; color: #f0f6fc; }
-        .status { margin-top: 20px; color: #00ff96; font-weight: bold; font-size: 14px; text-transform: uppercase; }
-        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 18px; border-radius: 8px; font-weight: 800; font-size: 22px; cursor: pointer; border: none; width: 100%; margin-top: 20px; }
+        h1 { margin: 0; font-size: 32px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; }
+        .discord-link { display: block; margin: 10px 0 25px 0; color: #5865f2; text-decoration: none; font-weight: bold; font-size: 15px; }
+        .status { margin-bottom: 10px; color: #00ff96; font-size: 14px; font-weight: bold; }
+        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; transition: all 0.2s ease; }
+        .btn:hover { background: #2ea043; transform: scale(1.02); }
         @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
@@ -18,8 +20,9 @@
     <div class="rainbow-box">
         <div class="content">
             <h1>QLTZ Notifier</h1>
-            <div id="statusMsg" class="status">Connecting to Instance...</div>
-            <a id="manualBtn" href="#" class="btn">JOIN SERVER</a>
+            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">JOIN OFFICIAL DISCORD</a>
+            <div id="statusMsg" class="status">Waiting for Roblox...</div>
+            <button id="launchBtn" class="btn">JOIN SERVER</button>
         </div>
     </div>
 
@@ -29,20 +32,17 @@
         const placeId = "13511855214";
 
         if (serverId) {
-            // THE FIX: Direct Deep Link Protocol
+            // Updated protocol to handle JobID specifically
             const finalUrl = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+            document.getElementById('launchBtn').onclick = () => { window.location.href = finalUrl; };
             
-            // Set the button link just in case
-            document.getElementById('manualBtn').href = finalUrl;
-
-            // AUTOMATIC REDIRECT: This mimics the "Direct Link" feel
-            // It triggers the app launch immediately without losing the JobID
+            // Auto-launch attempt after 1 second
             setTimeout(() => {
                 window.location.href = finalUrl;
-                document.getElementById('statusMsg').innerText = "Launching Roblox...";
-            }, 500);
+                document.getElementById('statusMsg').innerText = "Launching Instance...";
+            }, 1000);
         } else {
-            document.getElementById('statusMsg').innerText = "ERROR: NO JOB ID";
+            document.getElementById('statusMsg').innerText = "ERROR: NO ID FOUND";
             document.getElementById('statusMsg').style.color = "#da3633";
         }
     </script>
