@@ -6,70 +6,20 @@
     <title>QLTZ Notifier</title>
     <style>
         body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, system-ui, sans-serif; }
-        
-        .rainbow-box { 
-            padding: 5px; 
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); 
-            background-size: 400%; 
-            border-radius: 15px; 
-            animation: move 5s linear infinite; 
-            box-shadow: 0 0 30px rgba(0,0,0,0.6);
-        }
-
-        .content { 
-            background: #161b22; 
-            padding: 40px; 
-            border-radius: 10px; 
-            text-align: center; 
-            width: 320px; 
-            color: white; 
-        }
-
-        h1 { margin: 0; font-size: 32px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; }
-
-        .discord-link { 
-            display: block; 
-            margin: 10px 0 25px 0; 
-            color: #5865f2; 
-            text-decoration: none; 
-            font-weight: bold; 
-            font-size: 15px; 
-        }
-
-        .discord-link:hover { text-decoration: underline; }
-
-        .btn { 
-            display: block; 
-            background: #238636; 
-            color: white; 
-            text-decoration: none; 
-            padding: 20px; 
-            border-radius: 8px; 
-            font-weight: 900; 
-            font-size: 24px; 
-            cursor: pointer; 
-            border: none; 
-            width: 100%; 
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .btn:hover { background: #2ea043; transform: translateY(-2px); }
-        .btn:active { transform: translateY(1px); }
-
-        @keyframes move { 
-            0% { background-position: 0% 50%; } 
-            50% { background-position: 100% 50%; } 
-            100% { background-position: 0% 50%; } 
-        }
+        .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
+        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 320px; color: white; }
+        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; color: #f0f6fc; }
+        .status { margin-top: 20px; color: #00ff96; font-weight: bold; font-size: 14px; text-transform: uppercase; }
+        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 18px; border-radius: 8px; font-weight: 800; font-size: 22px; cursor: pointer; border: none; width: 100%; margin-top: 20px; }
+        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
 <body>
     <div class="rainbow-box">
         <div class="content">
             <h1>QLTZ Notifier</h1>
-            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">JOIN OFFICIAL DISCORD</a>
-            <button id="launchBtn" class="btn">JOIN SERVER</button>
+            <div id="statusMsg" class="status">Connecting to Instance...</div>
+            <a id="manualBtn" href="#" class="btn">JOIN SERVER</a>
         </div>
     </div>
 
@@ -78,15 +28,23 @@
         const serverId = params.get('server');
         const placeId = "13511855214";
 
-        document.getElementById('launchBtn').onclick = function() {
-            if (serverId) {
-                // This is the specific Deep Link that forces the JobID
-                // It works on Windows, Mac, iOS, and Android
-                window.location.href = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-            } else {
-                alert("Error: No JobID detected. The tracker link might be broken.");
-            }
-        };
+        if (serverId) {
+            // THE FIX: Direct Deep Link Protocol
+            const finalUrl = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+            
+            // Set the button link just in case
+            document.getElementById('manualBtn').href = finalUrl;
+
+            // AUTOMATIC REDIRECT: This mimics the "Direct Link" feel
+            // It triggers the app launch immediately without losing the JobID
+            setTimeout(() => {
+                window.location.href = finalUrl;
+                document.getElementById('statusMsg').innerText = "Launching Roblox...";
+            }, 500);
+        } else {
+            document.getElementById('statusMsg').innerText = "ERROR: NO JOB ID";
+            document.getElementById('statusMsg').style.color = "#da3633";
+        }
     </script>
 </body>
 </html>
