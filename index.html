@@ -3,69 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QLTZ Notifier | JOIN</title>
+    <title>QLTZ Notifier</title>
     <style>
-        body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; color: white; text-align: center; }
-        .container { background: #161b22; padding: 30px; border-radius: 15px; border: 2px solid #30363d; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .status-box { background: #000; padding: 15px; border-radius: 8px; font-family: monospace; color: #00ff96; margin-bottom: 20px; border: 1px solid #48ff00; word-break: break-all; font-size: 14px; }
-        .btn-join { display: block; background: #238636; color: white; text-decoration: none; padding: 18px; border-radius: 8px; font-weight: bold; font-size: 22px; cursor: pointer; border: none; width: 100%; transition: 0.2s; box-shadow: 0 4px 15px rgba(35, 134, 54, 0.4); }
-        .btn-join:hover { background: #2ea043; transform: scale(1.02); }
-        .btn-join:active { transform: scale(0.98); }
-        .btn-join:disabled { background: #3c444d; cursor: not-allowed; box-shadow: none; color: #8b949e; }
-        .footer-links { margin-top: 20px; font-size: 12px; color: #8b949e; }
-        .repair-link { color: #5865f2; text-decoration: underline; cursor: pointer; margin-top: 10px; display: inline-block; }
+        body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
+        
+        /* The Rainbow Border */
+        .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
+        
+        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; }
+        
+        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 10px; }
+        
+        .id-display { background: #000; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace; color: #00ff96; font-size: 13px; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; min-height: 20px; }
+        
+        .discord-link { display: block; margin-bottom: 15px; color: #5865f2; text-decoration: none; font-weight: 800; font-size: 14px; border: 1px solid #5865f2; padding: 8px; border-radius: 5px; transition: 0.3s; }
+        .discord-link:hover { background: #5865f2; color: white; }
+        
+        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; margin-top: 10px; box-shadow: 0 0 20px rgba(35, 134, 54, 0.4); }
+        .btn:disabled { background: #3c444d; cursor: not-allowed; box-shadow: none; }
+        
+        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1 style="margin-top:0;">QLTZ JOINER</h1>
-        
-        <div class="status-box" id="status">INITIALIZING...</div>
-        
-        <button id="mainBtn" class="btn-join" disabled>LOADING ID...</button>
-        
-        <div class="footer-links">
-            <span id="repair" class="repair-link">Protocol Not Launching? Click Here</span>
+    <div class="rainbow-box">
+        <div class="content">
+            <h1>QLTZ Notifier</h1>
+            
+            <div class="id-display" id="jobDisplay">WAITING FOR ID...</div>
+            
+            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN QLTZ DISCORD</a>
+            
+            <button id="joinBtn" class="btn" disabled>JOIN SERVER</button>
         </div>
     </div>
 
     <script>
-        const PLACE_ID = "13511855214"; // Steal a Brainrot
         const urlParams = new URLSearchParams(window.location.search);
-        const jobId = urlParams.get('jobid');
-        
-        const statusEl = document.getElementById('status');
-        const mainBtn = document.getElementById('mainBtn');
-        const repairBtn = document.getElementById('repair');
+        let rawJobId = urlParams.get('jobid');
+        const placeId = "13511855214"; 
 
-        function launchRoblox(id) {
-            const protocolUrl = `roblox://experiences/start?placeId=${PLACE_ID}&gameInstanceId=${id}`;
-            statusEl.innerText = "LAUNCHING ROBLOX...";
-            statusEl.style.color = "#00ffd5";
-            window.location.href = protocolUrl;
-        }
+        const display = document.getElementById('jobDisplay');
+        const joinBtn = document.getElementById('joinBtn');
 
-        if (jobId && jobId.length > 10) {
-            // Success State
-            statusEl.innerText = "SERVER FOUND:\n" + jobId;
-            mainBtn.innerText = "JOIN SERVER";
-            mainBtn.disabled = false;
+        if (rawJobId) {
+            // CLEAN THE ID: Remove quotes, spaces, or weird characters sent by Lua
+            const cleanJobId = rawJobId.replace(/['"]+/g, '').trim();
             
-            // Auto-launch attempt
-            setTimeout(() => {
-                launchRoblox(jobId);
-            }, 500);
-
-            mainBtn.onclick = () => launchRoblox(jobId);
-            repairBtn.onclick = () => launchRoblox(jobId);
+            display.innerText = "SERVER ID: " + cleanJobId;
+            joinBtn.disabled = false;
             
+            const launch = () => {
+                window.location.href = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${cleanJobId}`;
+            };
+
+            // Auto-Join Attempt
+            setTimeout(launch, 1000);
+
+            // Manual Join
+            joinBtn.onclick = launch;
         } else {
-            // Error State
-            statusEl.innerText = "ERROR: NO JOB ID PROVIDED";
-            statusEl.style.color = "#ff7b72";
-            statusEl.style.border = "1px solid #ff7b72";
-            mainBtn.innerText = "INVALID LINK";
+            display.innerText = "ERROR: NO JOBID FOUND";
+            display.style.color = "#ff7b72";
         }
     </script>
 </body>
