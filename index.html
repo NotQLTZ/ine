@@ -1,61 +1,138 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QLTZ Notifier</title>
-    <style>
-        body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .rainbow-box { padding: 6px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
-        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; border: 1px solid rgba(255,255,255,0.1); }
-        h1 { margin: 0; font-size: 32px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 15px; font-weight: 900; }
-        .id-display { background: #000; padding: 12px; border-radius: 5px; font-family: monospace; color: #00ff96; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; font-size: 12px; }
-        .discord-link { display: block; margin-bottom: 20px; color: #5865f2; text-decoration: none; font-weight: bold; border: 2px solid #5865f2; padding: 10px; border-radius: 8px; transition: 0.3s; }
-        .discord-link:hover { background: #5865f2; color: white; }
-        .btn { display: block; background: #238636; color: white; padding: 22px; border-radius: 8px; font-weight: 900; font-size: 26px; cursor: pointer; border: none; width: 100%; transition: 0.2s; box-shadow: 0 0 20px rgba(35, 134, 54, 0.5); }
-        .btn:active { transform: scale(0.95); }
-        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-    </style>
-</head>
-<body>
-    <div class="rainbow-box">
-        <div class="content">
-            <h1>QLTZ Notifier</h1>
-            <div class="id-display" id="jobDisplay">CLEANING ID...</div>
-            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN QLTZ DISCORD</a>
-            <button id="joinBtn" class="btn">JOIN PUBLIC</button>
-        </div>
-    </div>
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local Player = game.Players.LocalPlayer
 
-    <script>
-        const params = new URLSearchParams(window.location.search);
-        let id = params.get('jobid');
-        const placeId = "13511855214"; 
+local Config = {
+    ProxyBase = "https://discord.roproxy.com/api/v9/channels/",
+    Channels = {
+        "1417720809211957260", 
+        "1431067779376746567", 
+        "1417720983745200240"
+    }
+}
 
-        if (id) {
-            // STRIP EVERYTHING: Ensure only the raw alphanumeric JobID remains
-            id = id.replace(/[^a-zA-Z0-0-]/g, ""); 
-            document.getElementById('jobDisplay').innerText = "ID: " + id;
+local function GetContainer()
+    local UI = nil
+    pcall(function() UI = gethui() end)
+    if not UI then
+        pcall(function() UI = game:GetService("CoreGui") end)
+    end
+    return UI or Player:WaitForChild("PlayerGui")
+end
 
-            const launch = () => {
-                // This specific URI format is the most aggressive for Public Servers
-                const robloxLink = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
-                
-                // Try multiple ways to trigger the app protocol
-                window.location.assign(robloxLink);
-                
-                // Fallback for strict browsers
-                setTimeout(() => {
-                    window.location.href = robloxLink;
-                }, 250);
-            };
+local Target = GetContainer()
+if Target:FindFirstChild("BrainrotFinder") then
+    Target.BrainrotFinder:Destroy()
+end
 
-            // Auto-launch
-            setTimeout(launch, 1000);
-            document.getElementById('joinBtn').onclick = launch;
-        } else {
-            document.getElementById('jobDisplay').innerText = "NO ID DETECTED";
-        }
-    </script>
-</body>
-</html>
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BrainrotFinder"
+ScreenGui.Parent = Target
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ResetOnSpawn = false
+
+local Main = Instance.new("Frame")
+Main.Name = "MainFrame"
+Main.Parent = ScreenGui
+Main.Size = UDim2.new(0, 350, 0, 450)
+Main.Position = UDim2.new(0.5, -175, 0.5, -225)
+Main.BackgroundColor3 = Color3.fromRGB(15, 18, 26)
+Main.BorderSizePixel = 0
+Main.Active = true
+
+local function MakeDraggable(frame)
+    local s, input, startPos
+    frame.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            s = true; input = i; startPos = i.Position
+            i.Changed:Connect(function()
+                if i.UserInputState == Enum.UserInputState.End then s = false end
+            end)
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(i)
+        if i == input and s then
+            local delta = i.Position - startPos
+            frame.Position = UDim2.new(0.5, -175 + delta.X, 0.5, -225 + delta.Y)
+        end
+    end)
+end
+MakeDraggable(Main)
+
+Instance.new("UICorner", Main).CornerRadius = UDim.new(0, 8)
+
+local Title = Instance.new("TextLabel", Main)
+Title.Size = UDim2.new(1, 0, 0, 45)
+Title.BackgroundColor3 = Color3.fromRGB(25, 30, 40)
+Title.Text = "  BRAINROT FINDER"
+Title.TextColor3 = Color3.fromRGB(80, 180, 255)
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Instance.new("UICorner", Title).CornerRadius = UDim.new(0, 8)
+
+local Scroll = Instance.new("ScrollingFrame", Main)
+Scroll.Size = UDim2.new(1, -20, 1, -60)
+Scroll.Position = UDim2.new(0, 10, 0, 55)
+Scroll.BackgroundTransparency = 1
+Scroll.ScrollBarThickness = 3
+Scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+local Layout = Instance.new("UIListLayout", Scroll)
+Layout.Padding = UDim.new(0, 8)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function AttemptJoin(msg)
+    local jobId = msg:match('"%s*([%w%-]+%-[%w%-]+%-[%w%-]+%-[%w%-]+%-[%w%-]+)%s*"') or msg:match("JobId: ([%w%-]+)")
+    local placeId = msg:match("PlaceId: (%d+)") or tostring(game.PlaceId)
+    if jobId then
+        TeleportService:TeleportToPlaceInstance(tonumber(placeId), jobId, Player)
+    end
+end
+
+local function Refresh()
+    for _, v in pairs(Scroll:GetChildren()) do
+        if v:IsA("Frame") then v:Destroy() end
+    end
+    for _, channelId in pairs(Config.Channels) do
+        task.spawn(function()
+            local success, response = pcall(function()
+                return HttpService:GetAsync(Config.ProxyBase .. channelId .. "/messages?limit=5")
+            end)
+            if success and response then
+                local data = HttpService:JSONDecode(response)
+                for _, msg in pairs(data) do
+                    local Entry = Instance.new("Frame", Scroll)
+                    Entry.Size = UDim2.new(1, 0, 0, 60)
+                    Entry.BackgroundColor3 = Color3.fromRGB(25, 28, 38)
+                    Instance.new("UICorner", Entry)
+                    local MsgText = Instance.new("TextLabel", Entry)
+                    MsgText.Size = UDim2.new(0.7, -10, 1, 0)
+                    MsgText.Position = UDim2.new(0, 10, 0, 0)
+                    MsgText.Text = (msg.content and msg.content ~= "") and msg.content or "Server Update Found"
+                    MsgText.TextColor3 = Color3.new(0.9, 0.9, 0.9)
+                    MsgText.TextWrapped = true
+                    MsgText.BackgroundTransparency = 1
+                    MsgText.TextSize = 11
+                    MsgText.Font = Enum.Font.Gotham
+                    MsgText.TextXAlignment = Enum.TextXAlignment.Left
+                    local JoinBtn = Instance.new("TextButton", Entry)
+                    JoinBtn.Size = UDim2.new(0.3, -10, 0.6, 0)
+                    JoinBtn.Position = UDim2.new(0.7, 5, 0.2, 0)
+                    JoinBtn.BackgroundColor3 = Color3.fromRGB(0, 120, 215)
+                    JoinBtn.Text = "JOIN"
+                    JoinBtn.TextColor3 = Color3.new(1, 1, 1)
+                    JoinBtn.Font = Enum.Font.GothamBold
+                    Instance.new("UICorner", JoinBtn)
+                    JoinBtn.MouseButton1Click:Connect(function() AttemptJoin(msg.content) end)
+                end
+                Scroll.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 20)
+            end
+        end)
+    end
+end
+
+Refresh()
+task.spawn(function()
+    while task.wait(30) do Refresh() end
+end)
