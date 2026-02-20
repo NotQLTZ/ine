@@ -1,42 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>QLTZ Server Router</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QLTZ Notifier</title>
     <style>
-        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 50px; }
-        .btn { background: #0f0; color: #000; padding: 20px; border: none; font-weight: bold; font-size: 20px; border-radius: 10px; cursor: pointer; text-decoration: none; display: inline-block; }
+        body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, system-ui, sans-serif; overflow: hidden; }
+        .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
+        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; }
+        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 10px; }
+        
+        .id-display { background: #000; padding: 10px; border-radius: 5px; font-family: 'Courier New', monospace; color: #00ff96; font-size: 12px; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; }
+        
+        .discord-link { display: block; margin-bottom: 15px; color: #5865f2; text-decoration: none; font-weight: 800; font-size: 14px; border: 1px solid #5865f2; padding: 8px; border-radius: 5px; transition: 0.3s; }
+        .discord-link:hover { background: #5865f2; color: white; }
+        
+        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; margin-top: 10px; box-shadow: 0 0 20px rgba(35, 134, 54, 0.4); }
+        .copy-btn { background: #30363d; font-size: 14px; padding: 10px; margin-top: 10px; color: #c9d1d9; border: 1px solid #8b949e; }
+        
+        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
 <body>
-    <h1>QLTZ ROUTER</h1>
-    <p>Targeting Server...</p>
-    <a id="launch" class="btn">🚀 CLICK TO JOIN SERVER</a>
+    <div class="rainbow-box">
+        <div class="content">
+            <h1>QLTZ Notifier</h1>
+            
+            <div class="id-display" id="jobDisplay">Loading JobID...</div>
+            
+            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN QLTZ DISCORD</a>
+            
+            <button id="joinBtn" class="btn">🚀 JOIN SERVER</button>
+            <button id="copyBtn" class="copy-btn btn">📋 COPY JOBID</button>
+        </div>
+    </div>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const jobId = urlParams.get('jobid');
+        const params = new URLSearchParams(window.location.search);
+        const jobId = params.get('jobid');
         const placeId = "13511855214";
-
-        // The "Triple-Threat" Link Structure
-        // This is the format that forces the app to read the JobID
-        const robloxLink = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${jobId}`;
-
-        const launchBtn = document.getElementById('launch');
         
-        launchBtn.onclick = function() {
-            if (!jobId) {
-                alert("ERROR: No JobID found. Wait for a new notification.");
-                return;
+        if (jobId) {
+            document.getElementById('jobDisplay').innerText = "SERVER ID: " + jobId;
+        } else {
+            document.getElementById('jobDisplay').innerText = "NO JOB ID FOUND";
+            document.getElementById('jobDisplay').style.color = "#ff7b72";
+        }
+
+        const deepLink = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${jobId}`;
+
+        document.getElementById('joinBtn').onclick = function() {
+            if (jobId) {
+                window.location.href = deepLink;
+            } else {
+                alert("No Server ID provided in the link.");
             }
-            // Execute launch
-            window.location.href = robloxLink;
         };
 
-        // Auto-click attempt for faster joins
-        setTimeout(() => {
-            if(jobId) window.location.href = robloxLink;
-        }, 500);
+        document.getElementById('copyBtn').onclick = function() {
+            if (jobId) {
+                navigator.clipboard.writeText(jobId);
+                const originalText = this.innerText;
+                this.innerText = "✅ COPIED!";
+                setTimeout(() => { this.innerText = originalText; }, 2000);
+            }
+        };
     </script>
 </body>
 </html>
