@@ -1,57 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="referrer" content="no-referrer"> <title>QLTZ Notifier</title>
+    <title>QLTZ Server Router</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, system-ui, sans-serif; }
-        .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
-        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 320px; color: white; }
-        h1 { margin: 0; font-size: 32px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; }
-        .discord-link { display: block; margin: 15px 0; color: #5865f2; text-decoration: none; font-weight: 800; font-size: 16px; border: 1px solid #5865f2; padding: 10px; border-radius: 5px; }
-        .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; margin-top: 10px; }
-        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding-top: 50px; }
+        .btn { background: #0f0; color: #000; padding: 20px; border: none; font-weight: bold; font-size: 20px; border-radius: 10px; cursor: pointer; text-decoration: none; display: inline-block; }
     </style>
 </head>
 <body>
-    <div class="rainbow-box">
-        <div class="content">
-            <h1>QLTZ Notifier</h1>
-            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN DISCORD</a>
-            <button id="joinBtn" class="btn">OPENING ROBLOX...</button>
-        </div>
-    </div>
+    <h1>QLTZ ROUTER</h1>
+    <p>Targeting Server...</p>
+    <a id="launch" class="btn">🚀 CLICK TO JOIN SERVER</a>
 
     <script>
-        const params = new URLSearchParams(window.location.search);
-        const serverId = params.get('server');
+        const urlParams = new URLSearchParams(window.location.search);
+        const jobId = urlParams.get('jobid');
         const placeId = "13511855214";
-        
-        // This is the raw protocol that skips the "Permission" check
-        const deepLink = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + serverId;
 
-        function forceJoin() {
-            if (serverId) {
-                // Method 1: Location Replace (Best for iPad)
-                window.location.replace(deepLink);
-                
-                // Method 2: Fallback Iframe (Forces a protocol launch)
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = deepLink;
-                document.body.appendChild(iframe);
+        // The "Triple-Threat" Link Structure
+        // This is the format that forces the app to read the JobID
+        const robloxLink = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${jobId}`;
+
+        const launchBtn = document.getElementById('launch');
+        
+        launchBtn.onclick = function() {
+            if (!jobId) {
+                alert("ERROR: No JobID found. Wait for a new notification.");
+                return;
             }
-        }
+            // Execute launch
+            window.location.href = robloxLink;
+        };
 
-        // Trigger 1: Instant load
-        window.onload = forceJoin;
-        
-        // Trigger 2: Short delay backup
-        setTimeout(forceJoin, 500);
-
-        // Trigger 3: Manual Button
-        document.getElementById('joinBtn').onclick = forceJoin;
+        // Auto-click attempt for faster joins
+        setTimeout(() => {
+            if(jobId) window.location.href = robloxLink;
+        }, 500);
     </script>
 </body>
 </html>
