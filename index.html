@@ -10,9 +10,8 @@
         .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 320px; color: white; }
         h1 { margin: 0; font-size: 32px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; }
         .discord-link { display: block; margin: 10px 0 25px 0; color: #5865f2; text-decoration: none; font-weight: bold; font-size: 15px; }
-        .status { margin-bottom: 10px; color: #00ff96; font-size: 14px; font-weight: bold; }
         .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; transition: all 0.2s ease; }
-        .btn:hover { background: #2ea043; transform: scale(1.02); }
+        .btn:hover { background: #2ea043; }
         @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
 </head>
@@ -21,8 +20,7 @@
         <div class="content">
             <h1>QLTZ Notifier</h1>
             <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">JOIN OFFICIAL DISCORD</a>
-            <div id="statusMsg" class="status">Waiting for Roblox...</div>
-            <button id="launchBtn" class="btn">JOIN SERVER</button>
+            <button id="joinBtn" class="btn">JOIN SERVER</button>
         </div>
     </div>
 
@@ -31,20 +29,15 @@
         const serverId = params.get('server');
         const placeId = "13511855214";
 
-        if (serverId) {
-            // Updated protocol to handle JobID specifically
-            const finalUrl = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
-            document.getElementById('launchBtn').onclick = () => { window.location.href = finalUrl; };
-            
-            // Auto-launch attempt after 1 second
-            setTimeout(() => {
-                window.location.href = finalUrl;
-                document.getElementById('statusMsg').innerText = "Launching Instance...";
-            }, 1000);
-        } else {
-            document.getElementById('statusMsg').innerText = "ERROR: NO ID FOUND";
-            document.getElementById('statusMsg').style.color = "#da3633";
-        }
+        document.getElementById('joinBtn').onclick = function() {
+            if (serverId) {
+                // This is the "Legacy" format. 
+                // It works because it's the exact same logic Discord uses for its embeds.
+                window.location.href = "https://www.roblox.com/games/start?placeId=" + placeId + "&gameInstanceId=" + serverId;
+            } else {
+                alert("No Server ID Found");
+            }
+        };
     </script>
 </body>
 </html>
