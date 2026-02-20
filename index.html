@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QLTZ Notifier</title>
+    <meta name="referrer" content="no-referrer"> <title>QLTZ Notifier</title>
     <style>
         body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: -apple-system, system-ui, sans-serif; }
         .rainbow-box { padding: 5px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
         .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 320px; color: white; }
         h1 { margin: 0; font-size: 32px; letter-spacing: 1px; color: #f0f6fc; text-transform: uppercase; }
         .discord-link { display: block; margin: 15px 0; color: #5865f2; text-decoration: none; font-weight: 800; font-size: 16px; border: 1px solid #5865f2; padding: 10px; border-radius: 5px; }
-        .discord-link:hover { background: #5865f2; color: white; }
-        .status { margin-top: 10px; color: #00ff96; font-size: 14px; font-family: monospace; }
         .btn { display: block; background: #238636; color: white; text-decoration: none; padding: 20px; border-radius: 8px; font-weight: 900; font-size: 24px; cursor: pointer; border: none; width: 100%; margin-top: 10px; }
         @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
     </style>
@@ -20,9 +18,8 @@
     <div class="rainbow-box">
         <div class="content">
             <h1>QLTZ Notifier</h1>
-            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 OFFICIAL DISCORD</a>
-            <div id="status" class="status">REQUESTING ACCESS...</div>
-            <button id="joinBtn" class="btn">JOIN NOW</button>
+            <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">🔗 JOIN DISCORD</a>
+            <button id="joinBtn" class="btn">OPENING ROBLOX...</button>
         </div>
     </div>
 
@@ -30,19 +27,31 @@
         const params = new URLSearchParams(window.location.search);
         const serverId = params.get('server');
         const placeId = "13511855214";
-        const launchUrl = `roblox://experiences/start?placeId=${placeId}&gameInstanceId=${serverId}`;
+        
+        // This is the raw protocol that skips the "Permission" check
+        const deepLink = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + serverId;
 
-        if (serverId) {
-            // INSTANT JOIN: This fires as soon as the script runs
-            window.location.href = launchUrl;
-            document.getElementById('status').innerText = "SENDING HANDSHAKE...";
-
-            // Button backup in case the browser blocks the auto-popup
-            document.getElementById('joinBtn').onclick = () => { window.location.href = launchUrl; };
-        } else {
-            document.getElementById('status').innerText = "ERROR: INVALID SERVER ID";
-            document.getElementById('status').style.color = "#ff4444";
+        function forceJoin() {
+            if (serverId) {
+                // Method 1: Location Replace (Best for iPad)
+                window.location.replace(deepLink);
+                
+                // Method 2: Fallback Iframe (Forces a protocol launch)
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = deepLink;
+                document.body.appendChild(iframe);
+            }
         }
+
+        // Trigger 1: Instant load
+        window.onload = forceJoin;
+        
+        // Trigger 2: Short delay backup
+        setTimeout(forceJoin, 500);
+
+        // Trigger 3: Manual Button
+        document.getElementById('joinBtn').onclick = forceJoin;
     </script>
 </body>
 </html>
