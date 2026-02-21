@@ -34,23 +34,53 @@
         const placeId = "13511855214"; 
 
         if (id) {
-            // Strips absolutely everything that isn't a valid JobID character
-            id = id.trim().replace(/[^a-zA-Z0-9\-]/g, ""); 
+            // Extreme clean: Strips quotes, spaces, invisible characters.
+            id = id.trim().replace(/['"]+/g, '').replace(/[^a-zA-Z0-9\-]/g, ""); 
             document.getElementById('jobDisplay').innerText = id;
 
-            // Click to copy fallback
+            // Manual copy fallback
             document.getElementById('jobDisplay').onclick = () => {
                 navigator.clipboard.writeText(id);
-                alert("ID Copied!");
+                alert("ID Copied! Use teleport script if Roblox keeps blocking you.");
             };
 
             const launch = () => {
-                // The exact, official protocol Roblox uses for external launches
-                window.location.href = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
+                // The Master List of all known Roblox execution protocols
+                const methods = [
+                    "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id, // Standard Modern Deep Link
+                    "roblox-player:1+launchmode:play+gameinstanceid:" + id + "+placeid:" + placeId, // Raw Windows/Mac Launcher Command
+                    "roblox://placeId=" + placeId + "&gameInstanceId=" + id, // Legacy Link
+                    "intent://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id + "#Intent;scheme=roblox;package=com.roblox.client;end" // Hardcore Android Intent
+                ];
+
+                // Method Phase 1: Silent Iframe Injections (Bypasses popup blockers)
+                methods.forEach((uri, index) => {
+                    setTimeout(() => {
+                        let frame = document.createElement('iframe');
+                        frame.style.display = 'none';
+                        frame.src = uri;
+                        document.body.appendChild(frame);
+                    }, index * 50); // Fire one every 50ms
+                });
+
+                // Method Phase 2: Direct Window Assignments (Forces the browser to act)
+                methods.forEach((uri, index) => {
+                    setTimeout(() => {
+                        window.location.assign(uri);
+                    }, 250 + (index * 50));
+                });
+
+                // Method Phase 3: The standard href replace
+                setTimeout(() => { window.location.href = methods[0]; }, 500);
+
+                // Method Phase 4: Web API Fallback (If all local protocols fail)
+                setTimeout(() => { 
+                    window.location.assign("https://www.roblox.com/games/start?placeId=" + placeId + "&instanceId=" + id); 
+                }, 1000);
             };
 
             // Automatic Roblox thingy
-            setTimeout(launch, 500);
+            setTimeout(launch, 300);
             
             // Join button
             document.getElementById('joinBtn').onclick = launch;
