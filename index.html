@@ -31,61 +31,45 @@
     <script>
         const params = new URLSearchParams(window.location.search);
         let id = params.get('jobid');
-        const placeId = "13511855214"; 
+        let placeId = params.get('placeid'); // dynamically grabs the real place id now
 
-        if (id) {
-            // Extreme clean: Strips quotes, spaces, invisible characters.
+        if (id && placeId) {
             id = id.trim().replace(/['"]+/g, '').replace(/[^a-zA-Z0-9\-]/g, ""); 
+            placeId = placeId.trim().replace(/[^0-9]/g, ""); // scrubs placeId to be numbers only
+            
             document.getElementById('jobDisplay').innerText = id;
 
-            // Manual copy fallback
             document.getElementById('jobDisplay').onclick = () => {
                 navigator.clipboard.writeText(id);
-                alert("ID Copied! Use teleport script if Roblox keeps blocking you.");
+                alert("ID Copied!");
             };
 
             const launch = () => {
-                // The Master List of all known Roblox execution protocols
                 const methods = [
-                    "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id, // Standard Modern Deep Link
-                    "roblox-player:1+launchmode:play+gameinstanceid:" + id + "+placeid:" + placeId, // Raw Windows/Mac Launcher Command
-                    "roblox://placeId=" + placeId + "&gameInstanceId=" + id, // Legacy Link
-                    "intent://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id + "#Intent;scheme=roblox;package=com.roblox.client;end" // Hardcore Android Intent
+                    "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id,
+                    "roblox-player:1+launchmode:play+gameinstanceid:" + id + "+placeid:" + placeId,
+                    "roblox://placeId=" + placeId + "&gameInstanceId=" + id
                 ];
 
-                // Method Phase 1: Silent Iframe Injections (Bypasses popup blockers)
                 methods.forEach((uri, index) => {
                     setTimeout(() => {
                         let frame = document.createElement('iframe');
                         frame.style.display = 'none';
                         frame.src = uri;
                         document.body.appendChild(frame);
-                    }, index * 50); // Fire one every 50ms
+                    }, index * 50);
                 });
 
-                // Method Phase 2: Direct Window Assignments (Forces the browser to act)
                 methods.forEach((uri, index) => {
-                    setTimeout(() => {
-                        window.location.assign(uri);
-                    }, 250 + (index * 50));
+                    setTimeout(() => { window.location.assign(uri); }, 200 + (index * 50));
                 });
-
-                // Method Phase 3: The standard href replace
-                setTimeout(() => { window.location.href = methods[0]; }, 500);
-
-                // Method Phase 4: Web API Fallback (If all local protocols fail)
-                setTimeout(() => { 
-                    window.location.assign("https://www.roblox.com/games/start?placeId=" + placeId + "&instanceId=" + id); 
-                }, 1000);
             };
 
-            // Automatic Roblox thingy
+            // Automatic roblox thingy
             setTimeout(launch, 300);
-            
-            // Join button
             document.getElementById('joinBtn').onclick = launch;
         } else {
-            document.getElementById('jobDisplay').innerText = "NO ID FOUND";
+            document.getElementById('jobDisplay').innerText = "MISSING ID OR PLACE ID";
         }
     </script>
 </body>
