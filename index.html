@@ -9,7 +9,8 @@
         .rainbow-box { padding: 6px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
         .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; border: 1px solid rgba(255,255,255,0.1); }
         h1 { margin: 0; font-size: 32px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 15px; font-weight: 900; }
-        .id-display { background: #000; padding: 12px; border-radius: 5px; font-family: monospace; color: #00ff96; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; font-size: 11px; }
+        .id-display { background: #000; padding: 12px; border-radius: 5px; font-family: monospace; color: #00ff96; margin-bottom: 10px; border: 1px solid #30363d; word-break: break-all; font-size: 11px; cursor: pointer; }
+        .id-display:hover { background: #111; }
         .discord-link { display: block; margin-bottom: 20px; color: #5865f2; text-decoration: none; font-weight: bold; border: 2px solid #5865f2; padding: 10px; border-radius: 8px; transition: 0.3s; }
         .discord-link:hover { background: #5865f2; color: white; }
         .btn { display: block; background: #238636; color: white; padding: 22px; border-radius: 8px; font-weight: 900; font-size: 26px; cursor: pointer; border: none; width: 100%; transition: 0.2s; box-shadow: 0 0 20px rgba(35, 134, 54, 0.5); }
@@ -21,7 +22,7 @@
     <div class="rainbow-box">
         <div class="content">
             <h1>QLTZ Notifier</h1>
-            <div class="id-display" id="jobDisplay">CLEANING ID...</div>
+            <div class="id-display" id="jobDisplay" title="Click to copy ID">LOADING ID...</div>
             <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">Join Discord</a>
             <button id="joinBtn" class="btn">Join</button>
         </div>
@@ -33,37 +34,34 @@
         const placeId = "13511855214"; 
 
         if (id) {
-            // Extreme scrubbing: removes EVERYTHING except the raw ID
-            id = id.trim().replace(/[^a-zA-Z0-9\-]/g, ""); 
-            document.getElementById('jobDisplay').innerText = "ID: " + id;
+            // THE CLEANER: Kills spaces, quotes, and hidden garbage that cause "No Permission"
+            id = id.replace(/['"]+/g, '').trim().replace(/[^a-zA-Z0-9\-]/g, ""); 
+            document.getElementById('jobDisplay').innerText = id;
 
-            const launch = () => {
-                // Method 1: The Standard Experience Start
-                const uri1 = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
-                // Method 2: The Direct Engine Boot (Bypasses many permission checks)
-                const uri2 = "roblox-player:1+launchmode:play+gameinstanceid:" + id + "+placeid:" + placeId;
-                // Method 3: Legacy Protocol
-                const uri3 = "roblox://placeId=" + placeId + "&gameInstanceId=" + id;
-                // Method 4: Web-Redirect Force
-                const uri4 = "https://www.roblox.com/games/start?placeId=" + placeId + "&instanceId=" + id;
-
-                // Fire all protocols in sequence to force a response
-                window.location.assign(uri1);
-                
-                setTimeout(() => { window.location.href = uri2; }, 200);
-                setTimeout(() => { window.location.href = uri3; }, 400);
-                
-                // Final fallback: opens a new tab if protocols are being blocked by browser settings
-                setTimeout(() => { window.open(uri4, '_blank'); }, 1000);
+            // Click to copy fallback
+            document.getElementById('jobDisplay').onclick = () => {
+                navigator.clipboard.writeText(id);
+                alert("ID Copied to Clipboard!");
             };
 
-            // Automatic launch - untouched
-            setTimeout(launch, 800);
+            const launch = () => {
+                // Protocol 1: The direct Start URI (Most common)
+                const uri1 = "roblox://experiences/start?placeId=" + placeId + "&gameInstanceId=" + id;
+                // Protocol 2: The Player Launch URI (Forces the app to check for updates & join)
+                const uri2 = "roblox-player:1+launchmode:play+gameinstanceid:" + id + "+placeid:" + placeId;
+                
+                // Fire both
+                window.location.href = uri1;
+                setTimeout(() => { window.location.assign(uri2); }, 250);
+            };
+
+            // Automatic Roblox thingy
+            setTimeout(launch, 1000);
             
-            // Join button - untouched
+            // Join button
             document.getElementById('joinBtn').onclick = launch;
         } else {
-            document.getElementById('jobDisplay').innerText = "NO ID DETECTED";
+            document.getElementById('jobDisplay').innerText = "NO ID FOUND";
         }
     </script>
 </body>
