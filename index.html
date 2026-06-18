@@ -30,12 +30,13 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        let id = params.get('jobid');
-        let placeId = params.get('placeid'); // dynamically grabs the real place id now
+        // Accept both lowercase and uppercase parameter names
+        let id = params.get('jobid') || params.get('jobId');
+        let placeId = params.get('placeid') || params.get('placeId');
 
         if (id && placeId) {
             id = id.trim().replace(/['"]+/g, '').replace(/[^a-zA-Z0-9\-]/g, ""); 
-            placeId = placeId.trim().replace(/[^0-9]/g, ""); // scrubs placeId to be numbers only
+            placeId = placeId.trim().replace(/[^0-9]/g, "");
             
             document.getElementById('jobDisplay').innerText = id;
 
@@ -65,7 +66,7 @@
                 });
             };
 
-            // Automatic roblox thingy
+            // Auto‑launch after 300ms
             setTimeout(launch, 300);
             document.getElementById('joinBtn').onclick = launch;
         } else {
