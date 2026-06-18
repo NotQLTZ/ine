@@ -2,27 +2,107 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>QLTZ Notifier</title>
     <style>
-        body { margin: 0; background-color: #0d1117; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .rainbow-box { padding: 6px; background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); background-size: 400%; border-radius: 15px; animation: move 5s linear infinite; }
-        .content { background: #161b22; padding: 40px; border-radius: 10px; text-align: center; width: 340px; color: white; border: 1px solid rgba(255,255,255,0.1); }
-        h1 { margin: 0; font-size: 32px; color: #f0f6fc; text-transform: uppercase; margin-bottom: 15px; font-weight: 900; }
-        .id-display { background: #000; padding: 12px; border-radius: 5px; font-family: monospace; color: #00ff96; margin-bottom: 20px; border: 1px solid #30363d; word-break: break-all; font-size: 11px; cursor: pointer; }
-        .id-display:hover { background: #111; }
-        .discord-link { display: block; margin-bottom: 20px; color: #5865f2; text-decoration: none; font-weight: bold; border: 2px solid #5865f2; padding: 10px; border-radius: 8px; transition: 0.3s; }
-        .discord-link:hover { background: #5865f2; color: white; }
-        .btn { display: block; background: #238636; color: white; padding: 22px; border-radius: 8px; font-weight: 900; font-size: 26px; cursor: pointer; border: none; width: 100%; transition: 0.2s; box-shadow: 0 0 20px rgba(35, 134, 54, 0.5); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #0d1117; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            font-family: sans-serif; 
+            padding: 10px;
+        }
+        .rainbow-box { 
+            padding: 4px; 
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000); 
+            background-size: 400%; 
+            border-radius: 15px; 
+            animation: move 5s linear infinite; 
+            max-width: 400px; 
+            width: 100%;
+        }
+        .content { 
+            background: #161b22; 
+            padding: 20px 15px; 
+            border-radius: 12px; 
+            text-align: center; 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        h1 { 
+            font-size: 24px; 
+            color: #f0f6fc; 
+            text-transform: uppercase; 
+            margin-bottom: 12px; 
+            font-weight: 900; 
+            letter-spacing: 1px;
+        }
+        .id-display { 
+            background: #000; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: monospace; 
+            color: #00ff96; 
+            margin-bottom: 15px; 
+            border: 1px solid #30363d; 
+            word-break: break-all; 
+            font-size: 12px; 
+            cursor: pointer; 
+            user-select: all;
+        }
+        .id-display:active { background: #111; }
+        .discord-link { 
+            display: block; 
+            margin-bottom: 15px; 
+            color: #5865f2; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border: 2px solid #5865f2; 
+            padding: 10px; 
+            border-radius: 8px; 
+            transition: 0.3s; 
+            font-size: 14px;
+        }
+        .discord-link:active { background: #5865f2; color: white; }
+        .btn { 
+            display: block; 
+            background: #238636; 
+            color: white; 
+            padding: 18px; 
+            border-radius: 8px; 
+            font-weight: 900; 
+            font-size: 22px; 
+            cursor: pointer; 
+            border: none; 
+            width: 100%; 
+            transition: 0.2s; 
+            box-shadow: 0 0 20px rgba(35, 134, 54, 0.5);
+            touch-action: manipulation;
+        }
         .btn:active { transform: scale(0.95); }
-        @keyframes move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes move { 
+            0% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+            100% { background-position: 0% 50%; } 
+        }
+        /* Small screens */
+        @media (max-width: 480px) {
+            h1 { font-size: 20px; }
+            .content { padding: 15px 12px; }
+            .id-display { font-size: 10px; padding: 8px; }
+            .btn { font-size: 18px; padding: 15px; }
+            .discord-link { font-size: 12px; padding: 8px; }
+        }
     </style>
 </head>
 <body>
     <div class="rainbow-box">
         <div class="content">
             <h1>QLTZ Notifier</h1>
-            <div class="id-display" id="jobDisplay" title="Click to copy ID">LOADING ID...</div>
+            <div class="id-display" id="jobDisplay" title="Tap to copy ID">LOADING ID...</div>
             <a href="https://discord.gg/yjPXWGbNXS" class="discord-link">Join Discord</a>
             <button id="joinBtn" class="btn">Join</button>
         </div>
@@ -30,7 +110,6 @@
 
     <script>
         const params = new URLSearchParams(window.location.search);
-        // Accept both lowercase and uppercase parameter names
         let id = params.get('jobid') || params.get('jobId');
         let placeId = params.get('placeid') || params.get('placeId');
 
@@ -41,8 +120,29 @@
             document.getElementById('jobDisplay').innerText = id;
 
             document.getElementById('jobDisplay').onclick = () => {
-                navigator.clipboard.writeText(id);
-                alert("ID Copied!");
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(id).then(() => {
+                        alert("ID Copied!");
+                    }).catch(() => {
+                        // Fallback
+                        const el = document.createElement('textarea');
+                        el.value = id;
+                        document.body.appendChild(el);
+                        el.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(el);
+                        alert("ID Copied!");
+                    });
+                } else {
+                    // Fallback for older devices
+                    const el = document.createElement('textarea');
+                    el.value = id;
+                    document.body.appendChild(el);
+                    el.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(el);
+                    alert("ID Copied!");
+                }
             };
 
             const launch = () => {
@@ -66,11 +166,10 @@
                 });
             };
 
-            // Auto‑launch after 300ms
             setTimeout(launch, 300);
             document.getElementById('joinBtn').onclick = launch;
         } else {
-            document.getElementById('jobDisplay').innerText = "MISSING ID OR PLACE ID";
+            document.getElementById('jobDisplay').innerText = "MISSING ID";
         }
     </script>
 </body>
